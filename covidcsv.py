@@ -1,13 +1,10 @@
 import pandas as pd
-#import numpy as np
-
 import matplotlib.pyplot as plt
-#import seaborn as sns
 import matplotlib.dates as mdates
 from matplotlib.dates import DateFormatter
-#%matplotlib inline
 
-if __name__ =='__main__':
+
+def covidata():
     # If you want to fetch any date field then use parse_dates method in read_csv method for that column
     # dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
     # parse_dates=['Date Announced']
@@ -48,3 +45,5 @@ if __name__ =='__main__':
     # Write HTML String to file.html
     with open("index.html", "w") as file:
         file.write(html)
+
+covidata()
