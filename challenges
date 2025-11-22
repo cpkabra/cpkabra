@@ -1,4 +1,23 @@
 Cloud Cost Challange
 
 I have to work on one of the task which to reduce the cloud cost or check existing cloud cost is used properly or anything we can do so that it will reduce our cloud cost.
-  As part of that I have analysed our existing usages and reduced it by 40000$ per year for our project.
+As part of that I have analysed our existing usages and reduced it by 15000$ per year for our project for all environments.
+Actually our project is divided into two different tenant ESG and XREF.
+There are around 10 pipelines in XREF and 5 hours compute daily for XREF pipelines and for another ESG around 25 pipelines and 17 hours compute daily for ESG.
+But I have checked the cost and it seems XREF cost is coming more than ESG which should not happen.
+Then I deep dive into daily cost and got to know that approximately 55$ cost is coming daily including weekend as well but our pipeline are not running on weekend.
+So then it again create more surprised for me like how it is happening.
+I understood that something is running daily 24*7*365.
+I check azure portal cloud cost and filtered it daily and identified which resource is consuming this and got to know it is sql endpoint or sql warehouse which is running.
+I have check for all environment but for DEV and TEST this cost was not there only UAT and PROD it was there. Becasue on Lower environment it was in stopped mode 
+but in higher it was up and running.
+
+There is one setting in Sql endpoint auto terminate if we set this to any time like 30 minutes or 45 minutes of Inactivity then it will shut down and if it  using 
+continuously then it will not stop.
+We have check that one of our consumer using it and he wants data quickly like if sql endpoint is in shut down then they hit API then it will take 5-7 minutes for 
+first request.
+We have analysed and suggested one thing like in UAT we can do auto terminate on 45 minutes of inactivity and they also agree and we did it in UAT.
+By doing this we saved lot of cost
+
+
+
