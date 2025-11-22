@@ -6,3 +6,17 @@ to identify cost occured for particular tenant is this and so and so.
 But some time it is not good pratice and we decided to use our own workspace.
 DevOps created new workspace for us and now we need to migrate all stuffs from old to new workspace.
 In Our project mostly external tables used so data stored in ADLS is not an issue.
+Action Item we took care for new workspace migration are below.
+1. Create new metasore table in new workspace which will point to existing ADLS location.
+2. Update URL in linked service for databricks as all four environments url are differet.
+3. We updated new databricks url in UBS deployement page where it puts jar to new workspace location i.e. dbfs:/Filestore/jars/ourJarname.jar
+4. We also need to run GRANT statement in new workspace so that it will give rights on new metastore tables to all existing consumers.
+
+Main challenges in this is we mixed our actual release with this workspace migration release and it creates many issue and we required 2 expidted release on same day.
+We missed to change new URL in databricks linked service in prod and uat enviroment and reason is DevOps was having issue and created 2 times workspace so older one was
+there and we forget to updated new one.
+
+SOLUTION/FIX:- to fix this issue in new future when any linked service url changes come we have cretaed one utility where we will deploy all paramters file in dev env
+by passing all environment so that it will check paramters are there for all environments properly and once we verify we will last deploy DEV one so that it will point
+to DEV in DEV env.
+
