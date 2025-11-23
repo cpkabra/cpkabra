@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
 <body>
-
-<h2>Cloud Cost Challange</h2>
+<head>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<h1>Cloud Cost Challange</h1>
 
 <p>I have to work on one of the task which to reduce the cloud cost or check existing cloud cost is used properly or anything we can do so that it will reduce our cloud cost.
   As part of that I have analysed our existing usages and reduced it by 15000$ per year for our project for all environments.
@@ -22,8 +24,6 @@
 <h2>RUN PIPELINE IF DATA AVAILABEL AT UPSTREAM</h2>
 
 <p>Our project structure is like we are running lot of pipelines with FULL load and check delta if any changes happens then we will create history in SCD TYPE 2 table if not then it will RUN pipeline and do nothing but it will consume our resource. Upstream is Acquisition team which will upload data in Raw zone container and we will use those raw zone tables. In our project couple of pipeline are connected and first run those master pipeline which will have very less changes then it will run actual pipeline. In Acquisition many files frequeny is weekly or monthly or in some cases adhoc as well for some to the pipelines. But in this case what is happening it will run master pipeline which will take 45 minutes and then run child pipeline and check if any changes there at raw side or not If not then it will do nothing but we are wasting around 1 hours compute for our one pipeline. and we are having 5 pipelins of this pattern. Our pipeline are running daily on some scheduled becasue we have multiple pipeline and if at any time Acquisition will upload file and other pipelines are already running then in that case we have less resource or resource are not enough so it will fail our pipeline due to resource crunch. That's why we have enbled based on schedular. TO fix this we have identified and applied marker file strategey. In this once acquisition uplaod and done with file then they are generating some event in KAFKA so we read that particular topic and checked if file is upload then we are saving one marker file at datalake in some specific folder. pipeline-trigger-->am-currentfiles-xyz1.trg pipeline-trigger-->am-currentfiles-xyz2.trg pipeline-trigger-->am-currentfiles-xyz3.trg pipeline-trigger-->ubspasi-currentfiles-abc1.trg when our pipeline will run on specific time then it will read this folder and check if any file exists in specific folder then it will run the master ad child pipeline and after running actual child pipeline we are also moving those files into archive folde as well. pipeline-trigger-->am-archivefiles-xyz1.trg pipeline-trigger-->am-archivefiles-xyz2.trg pipeline-trigger-->am-archivefiles-xyz3.trg pipeline-trigger-->ubspasi-archivefiles-abc1.trg</p>
-
-<a href="default.asp"><img src="smiley.gif" alt="HTML tutorial" style="width:42px;height:42px;"></a>
 
 </body>
 </html>
