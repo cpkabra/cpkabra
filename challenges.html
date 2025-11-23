@@ -7,20 +7,23 @@
 In this page I am going to add challenge which I/we faced during our recent project
 <h1>1. Workspace migration</h1>
 
-<p>We are using databricks in our project and earlier we were usign shared workspace where multiple tenant were using that workspace based on some domain tag we used 
-to identify cost occured for particular tenant is this and so and so.
-But some time it is not good pratice and we decided to use our own workspace.
-DevOps created new workspace for us and now we need to migrate all stuffs from old to new workspace.
-In Our project mostly external tables used so data stored in ADLS is not an issue.
-Action Item we took care for new workspace migration are below.
-1. Create new metasore table in new workspace which will point to existing ADLS location.
-2. Update URL in linked service for databricks as all four environments url are differet.
-3. We updated new databricks url in UBS deployement page where it puts jar to new workspace location i.e. dbfs:/Filestore/jars/ourJarname.jar
+<p>We are using databricks in our project and earlier we were usign shared workspace where multiple tenant were using that workspace based on some domain <br>tag we used 
+to identify cost occured for particular tenant is this and so and so.<br>
+But some time it is not good pratice and we decided to use our own workspace.<br>
+DevOps created new workspace for us and now we need to migrate all stuffs from old to new workspace.<br>
+In Our project mostly external tables used so data stored in ADLS is not an issue.<br>
+Action Item we took care for new workspace migration are below.<br><br>
+1. Create new metasore table in new workspace which will point to existing ADLS location.<br>
+2. Update URL in linked service for databricks as all four environments url are differet.<br>
+3. We updated new databricks url in UBS deployement page where it puts jar to new workspace location i.e. dbfs:/Filestore/jars/ourJarname.jar<br>
 4. We also need to run GRANT statement in new workspace so that it will give rights on new metastore tables to all existing consumers.</p>
+  <br>
+  <br>
 
-<p>Main challenges in this is we mixed our actual release with this workspace migration release and it creates many issue and we required 2 expidted release on same day.
-We missed to change new URL in databricks linked service in prod and uat enviroment and reason is DevOps was having issue and created 2 times workspace so older one was
-there and we forget to updated new one.</p>
+<p>Main challenges in this is we mixed our actual release with this workspace migration release and it creates many issue and we required 2<br>
+  expidted release on same day.<br>
+We missed to change new URL in databricks linked service in prod and uat enviroment and reason is DevOps was having issue and created<br>
+  2 times workspace so older one was there and we forget to updated new one.<br></p>
 
   
 </body>
