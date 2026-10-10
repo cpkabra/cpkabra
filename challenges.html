@@ -1,95 +1,1135 @@
+
 <!DOCTYPE html>
-<html>
-<body>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Data Engineering Challenges & Solutions</title>
+  <meta name="description" content="Real-world data engineering challenges and solutions involving Databricks, Azure, Apache Spark, ADF, Delta Lake, performance optimization, and cloud cost reduction.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --text: #182230;
+      --muted: #667085;
+      --primary: #635bff;
+      --primary-light: #eeedff;
+      --border: #e5e9f0;
+      --green: #087f5b;
+      --green-bg: #e7f7ef;
+      --orange: #b54708;
+      --orange-bg: #fff4e5;
+      --code-bg: #111827;
+      --radius: 18px;
+      --shadow: 0 8px 30px rgba(16, 24, 40, 0.045);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont,
+        'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .hero {
+      background:
+        radial-gradient(ellipse at top right, rgba(137, 128, 255, .23), transparent 45%),
+        linear-gradient(135deg, #111827 0%, #20264c 55%, #3730a3 100%);
+      color: #ffffff;
+      padding: 76px 24px 68px;
+    }
+
+    .hero-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      color: #e0e7ff;
+      padding: 7px 13px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      line-height: 1.15;
+      letter-spacing: -1.8px;
+      margin: 25px 0 20px;
+      max-width: 820px;
+      font-weight: 800;
+    }
+
+    .hero h1 span {
+      color: #a5b4fc;
+    }
+
+    .hero-description {
+      max-width: 740px;
+      color: #d0d5dd;
+      font-size: 17px;
+      line-height: 1.9;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 26px;
+    }
+
+    .hero-tags span {
+      padding: 6px 12px;
+      border-radius: 7px;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.12);
+      font-size: 12px;
+      color: #f2f4f7;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 52px;
+    }
+
+    .overview-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 23px;
+      box-shadow: var(--shadow);
+    }
+
+    .overview-card .number {
+      display: block;
+      font-size: 29px;
+      line-height: 1.4;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--primary);
+    }
+
+    .overview-card .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .section-heading {
+      margin-bottom: 28px;
+    }
+
+    .section-heading .kicker {
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .section-heading h2 {
+      font-size: clamp(24px, 4vw, 32px);
+      letter-spacing: -1px;
+      line-height: 1.4;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      margin-top: 8px;
+      max-width: 700px;
+    }
+
+    .challenge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 26px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .challenge-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 17px;
+      margin-bottom: 24px;
+    }
+
+    .challenge-number {
+      display: flex;
+      flex: 0 0 46px;
+      height: 46px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 13px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .challenge-title {
+      font-size: 23px;
+      letter-spacing: -.6px;
+      line-height: 1.4;
+    }
+
+    .challenge-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .tech-tags span {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475467;
+      background: #f2f4f7;
+      border: 1px solid #eaecf0;
+      padding: 4px 9px;
+      border-radius: 6px;
+    }
+
+    .content-block {
+      margin-top: 24px;
+    }
+
+    .content-block h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .content-block p {
+      color: #475467;
+      margin-bottom: 12px;
+    }
+
+    .content-block ul,
+    .content-block ol {
+      padding-left: 22px;
+      color: #475467;
+    }
+
+    .content-block li {
+      margin-bottom: 9px;
+      padding-left: 4px;
+    }
+
+    .content-block li::marker {
+      color: var(--primary);
+    }
+
+    .callout {
+      margin-top: 18px;
+      padding: 17px 19px;
+      border-radius: 11px;
+      background: var(--orange-bg);
+      border-left: 4px solid #f79009;
+      color: #7a2e0e;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+    }
+
+    .callout p {
+      color: #7a2e0e;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .solution {
+      margin-top: 22px;
+      padding: 20px;
+      border-radius: 12px;
+      background: var(--green-bg);
+      border: 1px solid #c7ebd7;
+    }
+
+    .solution h3 {
+      color: var(--green);
+      margin-bottom: 10px;
+    }
+
+    .solution p,
+    .solution ul,
+    .solution ol {
+      color: #245c49;
+    }
+
+    .solution ul,
+    .solution ol {
+      padding-left: 22px;
+    }
+
+    .solution li {
+      margin-bottom: 8px;
+    }
+
+    .result {
+      margin-top: 18px;
+      padding: 16px 19px;
+      border-radius: 11px;
+      border: 1px solid #c7d7fe;
+      background: #eff4ff;
+      color: #3538a5;
+    }
+
+    .result strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .result p {
+      margin: 0;
+      color: #3538a5;
+      font-size: 14px;
+    }
+
+    .code-block {
+      position: relative;
+      background: var(--code-bg);
+      color: #e5e7eb;
+      border-radius: 11px;
+      margin-top: 14px;
+      overflow-x: auto;
+    }
+
+    .code-label {
+      padding: 11px 17px;
+      border-bottom: 1px solid #374151;
+      color: #9ca3af;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    pre {
+      padding: 18px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'SFMono-Regular', monospace;
+      font-size: 13px;
+      line-height: 1.9;
+      white-space: pre;
+      tab-size: 2;
+    }
+
+    code {
+      font-family: 'Consolas', 'SFMono-Regular', monospace;
+    }
+
+    .inline-code {
+      background: #f2f4f7;
+      border: 1px solid #e4e7ec;
+      padding: 2px 6px;
+      border-radius: 5px;
+      font-size: .9em;
+      overflow-wrap: anywhere;
+    }
+
+    .sql-keyword {
+      color: #c4b5fd;
+    }
+
+    .sql-table {
+      color: #86efac;
+    }
+
+    .sql-comment {
+      color: #9ca3af;
+    }
+
+    .metric-highlight {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 28px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer strong {
+      color: var(--text);
+    }
+
+    @media (max-width: 650px) {
+      .hero {
+        padding: 54px 20px 48px;
+      }
+
+      .hero h1 {
+        letter-spacing: -1px;
+      }
+
+      .hero-description {
+        font-size: 15px;
+      }
+
+      .container {
+        padding: 30px 15px 50px;
+      }
+
+      .overview {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 38px;
+      }
+
+      .overview-card {
+        padding: 17px 20px;
+      }
+
+      .overview-card .number {
+        font-size: 24px;
+      }
+
+      .challenge {
+        padding: 22px 18px;
+        margin-bottom: 18px;
+      }
+
+      .challenge-header {
+        gap: 12px;
+      }
+
+      .challenge-number {
+        flex-basis: 39px;
+        height: 39px;
+        font-size: 15px;
+      }
+
+      .challenge-title {
+        font-size: 20px;
+      }
+
+      pre {
+        font-size: 12px;
+        padding: 14px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .hero {
+        background: #20264c !important;
+        print-color-adjust: exact;
+      }
+
+      .challenge,
+      .overview-card {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+    }
+  </style>
 </head>
-In this page I am going to add challenge which I/we faced during our recent project
-<h1>1. Workspace migration</h1>
 
-<p>We are using databricks in our project and earlier we were usign shared workspace where multiple tenant were using that workspace based on some domain <br>tag we used 
-to identify cost occured for particular tenant is this and so and so.<br>
-But some time it is not good pratice and we decided to use our own workspace.<br>
-DevOps created new workspace for us and now we need to migrate all stuffs from old to new workspace.<br>
-In Our project mostly external tables used so data stored in ADLS is not an issue.<br>
-Action Item we took care for new workspace migration are below.<br><br>
-1. Create new metasore table in new workspace which will point to existing ADLS location.<br>
-2. Update URL in linked service for databricks as all four environments url are differet.<br>
-3. We updated new databricks url in UBS deployement page where it puts jar to new workspace location i.e. dbfs:/Filestore/jars/ourJarname.jar<br>
-4. We also need to run GRANT statement in new workspace so that it will give rights on new metastore tables to all existing consumers.</p>
-  <br>
-  <br>
+<body>
 
-<p>Main challenges in this is we mixed our actual release with this workspace migration release and it creates many issue and we required 2<br>
-  expidted release on same day.<br>
-We missed to change new URL in databricks linked service in prod and uat enviroment and reason is DevOps was having issue and created<br>
-  2 times workspace so older one was there and we forget to updated new one.<br></p>
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="eyebrow">Engineering Knowledge Base</span>
 
-  
-<h1>SOLUTION/FIX:-</h1> <br>
-  <p>
-    to fix this issue in new future when any linked service url changes come we have cretaed one utility where we will deploy all paramters file in dev env<br>
-by passing all environment so that it will check paramters are there for all environments properly and once we verify we will last deploy<br>
-  DEV one so that it will point to DEV in DEV env.<br></p>
+      <h1>
+        Real-World Data Engineering
+        <span>Challenges & Solutions</span>
+      </h1>
 
-<h1>2. Cloud Cost Reduce</h1>
-After seperating workspace now our target was to check cloud cost and we were have two tag old and new.<br>
-  In old one sql end point was running 24*7 in UAT and PROD which was highest cost producer, which I have analysed from azure cost and identify resource.<br>
-  Now we check and ask relvent team that can we shut it down and when you will use it will take 2-3 minute first time and then it is up.<br>
-  But that team was not agree on that so we convince them to atelast use Autermiate 30 minute if nt used in UAT and by this setting we saved a lot of cost.<br>
+      <p class="hero-description">
+        Practical engineering lessons from production projects, covering
+        Databricks workspace migration, cloud cost optimization, Spark
+        resource allocation, Delta Lake maintenance, and pipeline
+        performance improvements.
+      </p>
 
-<h1>3. Linked service configuration</h1>  
-  Actually in our project we are usign databricks resource which was createing job cluster and taking resource from node pool.
-  We are calling our pipeline from ADF and in ADF we have used linked service with min and max worker pool configuration so that our large pipeline will run on 
-  bug linked servie and small pipeline will run on small linked service.
+      <div class="hero-tags">
+        <span>Azure Databricks</span>
+        <span>Apache Spark</span>
+        <span>Azure Data Factory</span>
+        <span>Delta Lake</span>
+        <span>Performance Tuning</span>
+        <span>Cost Optimization</span>
+      </div>
+    </div>
+  </header>
 
-  <h2> Chellenge</h2>
-  Main  thing which I observed is our data was not huge for many pipeline but still we are allocating min 2 to max 5 worker.
-  So in real it will not use resource if not requiured but I have checked spark UI and resouce allocation so many time it was adding worker for very small time and then 
-  removing which was not required.
-  After analysing it I downgrade many small pipeline to min 1 to max 2 worker so that it can only take minimum resource. even there is no option for only min 1 and max 1 
-  in ADF to databricks so we have to go with that.
-  By using this approach we also saved a lot of cost.
-  
-  <h1>4. Vaccume, Optimize </h1>
-  <h2> Table size is increase day by and time travel is also increasing table version as well so we have introduce this new pipline which will run on weekend.
-    and it will run based on configuration and it will vaccume table based on configuration.
-    We are also running optimized command so that all small file merged into big file.
-    VACUUM esg_curated_db.climate RETAIN 168 HOURS 
-    OPTIMIZE esg_curated_db.climate;
-    ANALYZE TABLE esg_curated_db.climate
-    COMPUTE STATISTICS FOR COLUMNS esg_entity_id, order_date;
-  
-  </h2>
-  <h1>5. Approach modify and boost our pipeline from 5 hours to 30 min </h1>
-  <h2> Actually our all pipeline are based on raw i.e. acquisition where this is seperate team and ingesting all data into raw zone. and all pipeline are running on 
-    full file, i.e. every day when file come it will have full data, not only delta , let say yesterday file ingested and it was having 1000 records and today it have 1100 records 
-    where we are running merge so 100 will be inserted new record and 1000 will be updated if key matched so we are checking if any change is there then we will udpate if not then we will ignore.
-    we are also ignoring technical columns in compare.
+  <main class="container">
 
-    So this file ingestion will have process id which is feed id + current time stamp epoch id.
-    so every day it will have different proess id.
-    For all pipeline we are getting max(process_id) from raw zone so that we will get latest records.
+    <!-- Overview -->
+    <section class="overview" aria-label="Challenge overview">
+      <div class="overview-card">
+        <span class="number">05</span>
+        <div class="label">Real-world engineering challenges</div>
+      </div>
 
-    But scenario is different for this pipeline.
-    In this case file and records are huge so at acquisition side they are also splitting this file into multiple file and then uploading or ingesting.
-    so at raw side we would have multiple process id for same day. we can not use max process id if we will use this then it will end up with partial records.
+      <div class="overview-card">
+        <span class="number">5h → 30m</span>
+        <div class="label">Pipeline execution time reduced to under 30 minutes</div>
+      </div>
 
-    So this pipeline was already working on business date pattern, i.e. it was checking and getting data of max businessdate and that businessdate was not partition column.
-    This pipeline was taking more and more time.
-    <h2>Solution</h2>
-    <h2> I was checking query and quesry itself was taking all time other part was very quick
-    so I updated this with process id  instead of business date but we can not simpley take max process id.
-      In our project process_log table was already there so we are inserting entry into this table I also leverage this.
-      Once pipeline processed then at last we are inserting entry into this table with max process id.
-      when next run would start then we are getting entry from this table and taking all process id greather than this process id so by doing this we will get multiple process id.
-      and I also adding dedupling logic in query which window partition on business key , order by desc and rn=1 so even we do have multiple entry we will get one.
-      With this Fix pipeline was running very quick and less than 30 minute. and I haved a lot of cost.
-    </h2>
-    
-    
+      <div class="overview-card">
+        <span class="number">Cost + Scale</span>
+        <div class="label">Resource optimization and operational improvements</div>
+      </div>
+    </section>
 
-  </h2>
+    <section>
+      <div class="section-heading">
+        <div class="kicker">Production Engineering</div>
+        <h2>Challenges, decisions, and solutions</h2>
+        <p>
+          These examples explain the problem, the investigation, the
+          engineering decision, and the resulting improvement.
+        </p>
+      </div>
+
+      <!-- Challenge 1 -->
+      <article class="challenge">
+        <div class="challenge-header">
+          <div class="challenge-number">01</div>
+          <div>
+            <h2 class="challenge-title">Databricks Workspace Migration</h2>
+            <p class="challenge-subtitle">
+              Migrating workspace configuration without moving underlying data
+            </p>
+            <div class="tech-tags">
+              <span>Databricks</span>
+              <span>Unity Catalog / Metastore</span>
+              <span>ADLS</span>
+              <span>Azure Data Factory</span>
+              <span>Deployment Automation</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>Business Context</h3>
+          <p>
+            Our project initially used a shared Databricks workspace where
+            multiple tenants operated within the same environment. We used
+            domain-specific tags to identify and allocate cloud costs to
+            individual tenants.
+          </p>
+          <p>
+            As the project evolved, we decided to move to a dedicated
+            workspace to improve isolation and simplify resource and
+            environment management. DevOps provisioned the new workspace,
+            and we needed to migrate the existing configuration and
+            dependencies.
+          </p>
+          <p>
+            Most of our tables were external tables, with their data stored
+            in Azure Data Lake Storage (ADLS). This meant the underlying data
+            did not need to be physically moved; instead, we needed to
+            configure the new workspace to access the existing locations.
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>Migration Activities</h3>
+          <ol>
+            <li>
+              Re-create the required metastore and external table definitions
+              in the new workspace, pointing to the existing ADLS locations
+              and configuring the required catalog and storage access.
+            </li>
+            <li>
+              Update the Databricks URLs in the Azure Data Factory linked
+              services for all four environments.
+            </li>
+            <li>
+              Update the Databricks workspace URL in the UBS deployment
+              configuration so that the JAR is deployed to the correct
+              workspace location, such as
+              <code class="inline-code">dbfs:/FileStore/jars/ourJarname.jar</code>
+              where supported by the workspace configuration.
+            </li>
+            <li>
+              Execute the necessary GRANT statements to restore the required
+              privileges for existing consumers of the migrated tables.
+            </li>
+          </ol>
+        </div>
+
+        <div class="callout">
+          <strong>Challenge encountered</strong>
+          <p>
+            We combined the workspace migration with a regular application
+            release. This increased deployment risk and resulted in two
+            expedited releases on the same day. Additionally, the production
+            and UAT linked services still referenced an outdated workspace
+            URL because DevOps had provisioned a replacement workspace after
+            encountering issues with the original one.
+          </p>
+        </div>
+
+        <div class="solution">
+          <h3>Solution & Preventive Improvement</h3>
+          <p>
+            We introduced a validation utility to verify environment-specific
+            parameter files before deployment.
+          </p>
+          <ul>
+            <li>
+              Deploy the parameter files using an environment-aware
+              configuration, starting with DEV.
+            </li>
+            <li>
+              Validate that all environment-specific parameters, including
+              workspace URLs, are present and correct.
+            </li>
+            <li>
+              Verify the configuration before promoting the deployment
+              through UAT and PROD.
+            </li>
+            <li>
+              Keep workspace migration changes separate from regular
+              application releases wherever possible.
+            </li>
+          </ul>
+        </div>
+
+        <div class="result">
+          <strong>Key Engineering Lesson</strong>
+          <p>
+            Validate configuration across every environment and use a
+            controlled promotion process. Successful code deployment does
+            not guarantee that environment-specific dependencies are correct.
+          </p>
+        </div>
+      </article>
+
+      <!-- Challenge 2 -->
+      <article class="challenge">
+        <div class="challenge-header">
+          <div class="challenge-number">02</div>
+          <div>
+            <h2 class="challenge-title">Azure Cloud Cost Optimization</h2>
+            <p class="challenge-subtitle">
+              Identifying unnecessary compute costs and improving utilization
+            </p>
+            <div class="tech-tags">
+              <span>Azure Cost Management</span>
+              <span>Databricks SQL Warehouse</span>
+              <span>Auto Stop</span>
+              <span>FinOps</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>Problem</h3>
+          <p>
+            After separating the shared workspace into dedicated workspaces,
+            our next objective was to analyze and reduce cloud costs.
+            We compared the cost information associated with the old and
+            new workspace setups and investigated the major resource
+            consumers using Azure Cost Management.
+          </p>
+          <p>
+            We identified Databricks SQL Warehouses running continuously
+            in UAT and PROD as significant cost contributors.
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>Operational constraint</strong>
+          <p>
+            The consuming team was reluctant to shut down the SQL Warehouse
+            because starting it again could introduce a delay of approximately
+            two to three minutes before queries could run.
+          </p>
+        </div>
+
+        <div class="solution">
+          <h3>Solution</h3>
+          <p>
+            Rather than insisting on a complete shutdown, we discussed a
+            compromise with the consuming team and enabled a 30-minute
+            auto-stop setting for the relevant warehouse in UAT when it
+            remained idle.
+          </p>
+          <ul>
+            <li>Reviewed Azure cost data to identify expensive resources.</li>
+            <li>Discussed workload requirements with the consuming team.</li>
+            <li>Configured idle auto-stop to reduce unnecessary runtime.</li>
+            <li>Retained the ability to restart the warehouse when needed.</li>
+          </ul>
+        </div>
+
+        <div class="result">
+          <strong>Outcome</strong>
+          <p>
+            Reduced avoidable compute runtime and cloud spending while
+            maintaining the team's ability to use the warehouse when required.
+            The actual savings can be quantified using before-and-after
+            Azure Cost Management data.
+          </p>
+        </div>
+      </article>
+
+      <!-- Challenge 3 -->
+      <article class="challenge">
+        <div class="challenge-header">
+          <div class="challenge-number">03</div>
+          <div>
+            <h2 class="challenge-title">Databricks Linked Service & Cluster Sizing</h2>
+            <p class="challenge-subtitle">
+              Right-sizing compute for large and small ETL workloads
+            </p>
+            <div class="tech-tags">
+              <span>Azure Data Factory</span>
+              <span>Databricks Job Clusters</span>
+              <span>Node Pools</span>
+              <span>Spark UI</span>
+              <span>Resource Allocation</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>Architecture</h3>
+          <p>
+            Our ETL pipelines are orchestrated through Azure Data Factory
+            (ADF), which invokes Databricks jobs. The Databricks jobs use
+            compute provisioned through the configured node pools and
+            cluster settings.
+          </p>
+          <p>
+            We maintained different linked service configurations with
+            minimum and maximum worker counts so that larger pipelines could
+            use more compute, while smaller pipelines could operate with
+            fewer resources.
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>What I observed</strong>
+          <p>
+            Some relatively small pipelines were configured with a minimum
+            of two workers and a maximum of five. Using the Spark UI and
+            resource-allocation information, I observed that some jobs
+            briefly scaled up and subsequently removed workers even though
+            their workloads did not justify the extra capacity.
+          </p>
+        </div>
+
+        <div class="solution">
+          <h3>Solution</h3>
+          <ul>
+            <li>
+              Analyzed the Spark UI and execution patterns to understand
+              the actual compute requirements of individual pipelines.
+            </li>
+            <li>
+              Reduced the minimum worker count from two to one for suitable
+              smaller pipelines.
+            </li>
+            <li>
+              Reduced the maximum worker count from five to two for these
+              workloads.
+            </li>
+            <li>
+              Kept larger workloads on configurations that provided
+              sufficient parallelism and processing capacity.
+            </li>
+          </ul>
+          <p style="margin-top: 12px;">
+            Our ADF linked service configuration did not provide a convenient
+            way to enforce exactly one worker for the relevant setup, so we
+            used a minimum of one and a maximum of two workers instead.
+          </p>
+        </div>
+
+        <div class="result">
+          <strong>Outcome</strong>
+          <p>
+            Better alignment between workload size and allocated compute,
+            reducing unnecessary resource consumption and helping lower
+            Databricks costs without applying the same cluster size to
+            every pipeline.
+          </p>
+        </div>
+      </article>
+
+      <!-- Challenge 4 -->
+      <article class="challenge">
+        <div class="challenge-header">
+          <div class="challenge-number">04</div>
+          <div>
+            <h2 class="challenge-title">Delta Lake Maintenance: VACUUM, OPTIMIZE & ANALYZE</h2>
+            <p class="challenge-subtitle">
+              Managing table storage, file layout, and query performance
+            </p>
+            <div class="tech-tags">
+              <span>Delta Lake</span>
+              <span>VACUUM</span>
+              <span>OPTIMIZE</span>
+              <span>ANALYZE TABLE</span>
+              <span>Scheduled Maintenance</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>Problem</h3>
+          <p>
+            As our Delta tables received repeated updates and merges,
+            their storage footprint increased and additional data files
+            accumulated. We also needed to manage historical versions
+            and maintain statistics to help the query optimizer make
+            better decisions.
+          </p>
+          <p>
+            To address this, we introduced a configuration-driven
+            maintenance pipeline scheduled to run over the weekend.
+            The pipeline identifies the configured tables and executes
+            the appropriate maintenance operations.
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>Maintenance Commands</h3>
+
+          <div class="code-block">
+            <div class="code-label">Databricks SQL</div>
+            <pre><code><span class="sql-comment">-- Remove eligible obsolete data files</span>
+<span class="sql-keyword">VACUUM</span> esg_curated_db.climate
+RETAIN 168 HOURS;
+
+<span class="sql-comment">-- Compact small files into larger files</span>
+<span class="sql-keyword">OPTIMIZE</span> esg_curated_db.climate;
+
+<span class="sql-comment">-- Refresh optimizer statistics for selected columns</span>
+<span class="sql-keyword">ANALYZE TABLE</span> esg_curated_db.climate
+<span class="sql-keyword">COMPUTE STATISTICS FOR COLUMNS</span>
+esg_entity_id, order_date;</code></pre>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>What Each Command Does</h3>
+          <ul>
+            <li>
+              <strong>VACUUM:</strong> Removes eligible unreferenced data
+              files older than the specified retention period. It does not
+              simply remove old Delta transaction-log versions. The retention
+              period must be selected carefully to preserve required recovery
+              and time-travel capabilities.
+            </li>
+            <li>
+              <strong>OPTIMIZE:</strong> Rewrites eligible data files to
+              improve file layout and compact small files. This can improve
+              read performance by reducing file-management overhead.
+            </li>
+            <li>
+              <strong>ANALYZE TABLE:</strong> Computes statistics used by
+              the query optimizer to help select efficient execution plans.
+              Column statistics can be especially useful for joins and filters.
+            </li>
+          </ul>
+        </div>
+
+        <div class="solution">
+          <h3>Implementation Approach</h3>
+          <ul>
+            <li>Maintain a configuration-driven list of target tables.</li>
+            <li>Schedule maintenance during a suitable low-activity window.</li>
+            <li>Apply retention settings according to recovery requirements.</li>
+            <li>
+              Monitor execution duration, file counts, storage usage, and
+              query performance to evaluate the impact.
+            </li>
+          </ul>
+        </div>
+
+        <div class="result">
+          <strong>Important Consideration</strong>
+          <p>
+            VACUUM, OPTIMIZE, and ANALYZE serve different purposes.
+            Their schedules and configurations should reflect data volume,
+            query patterns, retention requirements, and operational cost.
+          </p>
+        </div>
+      </article>
+
+      <!-- Challenge 5 -->
+      <article class="challenge">
+        <div class="challenge-header">
+          <div class="challenge-number">05</div>
+          <div>
+            <h2 class="challenge-title">Pipeline Optimization: From 5 Hours to Under 30 Minutes</h2>
+            <p class="challenge-subtitle">
+              Replacing an expensive business-date scan with incremental process tracking
+            </p>
+            <div class="tech-tags">
+              <span>Apache Spark</span>
+              <span>Delta Lake MERGE</span>
+              <span>Incremental Processing</span>
+              <span>Window Functions</span>
+              <span>Query Optimization</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>Existing Data Processing Pattern</h3>
+          <p>
+            Our pipelines consume data from the raw or acquisition layer,
+            which is maintained by a separate ingestion team. Most incoming
+            files contain full snapshots rather than only changed records.
+          </p>
+          <p>
+            For example, yesterday's file might contain 1,000 records,
+            while today's file contains 1,100 records. Our merge logic
+            inserts new records and updates existing records when their
+            business attributes have changed. Technical columns are excluded
+            from change comparisons.
+          </p>
+          <p>
+            Each ingestion batch is assigned a process ID derived from
+            the feed ID and the current epoch timestamp. In the normal
+            pipeline pattern, we select the latest process ID to identify
+            the latest batch.
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>Why the existing approach failed</strong>
+          <p>
+            The pipeline under investigation processed a very large dataset.
+            To manage ingestion, the acquisition team split the input into
+            multiple files, creating multiple process IDs for the same
+            business date. Selecting only MAX(process_id) would therefore
+            retrieve an incomplete subset of the day's data.
+          </p>
+        </div>
+
+        <div class="content-block">
+          <h3>Original Processing Bottleneck</h3>
+          <p>
+            The pipeline used a business-date-based approach to identify
+            records for processing. The business-date column was not a
+            partition column, and the query required considerable time to
+            locate and process the relevant records.
+          </p>
+          <p>
+            I investigated the query execution and found that the data
+            retrieval query itself accounted for most of the runtime,
+            while the other pipeline steps were comparatively fast.
+          </p>
+        </div>
+
+        <div class="solution">
+          <h3>Solution: Incremental Process-ID Tracking</h3>
+
+          <p>
+            Instead of selecting the maximum process ID directly from the
+            raw table, I leveraged the existing process-log table to track
+            the last successfully processed process ID.
+          </p>
+
+          <ol>
+            <li>
+              Read the last successfully processed process ID from the
+              process-log table at the beginning of the pipeline.
+            </li>
+            <li>
+              Retrieve all eligible process IDs greater than the last
+              processed ID, ensuring that every ingestion batch for the
+              relevant processing window is considered.
+            </li>
+            <li>
+              Process records across the selected process IDs rather than
+              selecting only the single maximum process ID.
+            </li>
+            <li>
+              Apply deduplication using a window function partitioned by
+              the business key and ordered by the relevant timestamp or
+              process sequence in descending order.
+            </li>
+            <li>
+              Retain only the latest eligible record for each business key
+              before applying the merge logic.
+            </li>
+            <li>
+              Update the process log only after the batch has been
+              processed successfully, so the next execution can continue
+              from the correct checkpoint.
+            </li>
+          </ol>
+        </div>
+
+        <div class="content-block">
+          <h3>Illustrative Deduplication Logic</h3>
+          <p>
+            The following example illustrates the windowing approach.
+            Replace the sample table and column names with those used
+            in your actual pipeline.
+          </p>
+
+          <div class="code-block">
+            <div class="code-label">Spark SQL</div>
+            <pre><code><span class="sql-keyword">WITH</span> eligible_records <span class="sql-keyword">AS</span> (
+    <span class="sql-keyword">SELECT</span> *
+    <span class="sql-keyword">FROM</span> raw_table
+    <span class="sql-keyword">WHERE</span> process_id &gt; last_processed_id
+),
+ranked_records <span class="sql-keyword">AS</span> (
+    <span class="sql-keyword">SELECT</span> *,
+        ROW_NUMBER() OVER (
+            PARTITION BY business_key
+            ORDER BY process_id DESC, updated_at DESC
+        ) AS rn
+    <span class="sql-keyword">FROM</span> eligible_records
+)
+<span class="sql-keyword">SELECT</span> *
+<span class="sql-keyword">FROM</span> ranked_records
+<span class="sql-keyword">WHERE</span> rn = 1;</code></pre>
+          </div>
+
+          <p style="margin-top: 12px;">
+            <strong>Note:</strong> The example uses
+            <code class="inline-code">last_processed_id</code> as a
+            placeholder for the checkpoint retrieved from the process log.
+            In production, checkpoint handling should also account for
+            failed batches, concurrent runs, late-arriving data, and
+            deterministic ordering when records have the same process ID.
+          </p>
+        </div>
+
+        <div class="result">
+          <strong>Performance Improvement</strong>
+          <p>
+            <span class="metric-highlight">5 hours → under 30 minutes</span>
+            <br>
+            By improving incremental data selection and introducing
+            deduplication before downstream processing, the pipeline's
+            execution time dropped from approximately five hours to less
+            than thirty minutes. This represents a runtime reduction of
+            more than 90%, along with a substantial opportunity to reduce
+            compute consumption.
+          </p>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- Conclusion -->
+    <section class="challenge">
+      <div class="section-heading">
+        <div class="kicker">Key Takeaways</div>
+        <h2>Engineering principles I applied</h2>
+      </div>
+
+      <div class="content-block">
+        <ul>
+          <li>
+            <strong>Configuration management:</strong> Validate
+            environment-specific parameters before promoting deployments.
+          </li>
+          <li>
+            <strong>Cost awareness:</strong> Use actual utilization and
+            cost data to identify opportunities for optimization.
+          </li>
+          <li>
+            <strong>Right-sized compute:</strong> Match worker allocation
+            to workload requirements rather than using a uniform
+            configuration for every pipeline.
+          </li>
+          <li>
+            <strong>Delta Lake maintenance:</strong> Use VACUUM, OPTIMIZE,
+            and ANALYZE for their distinct storage and query-optimization
+            purposes.
+          </li>
+          <li>
+            <strong>Incremental processing:</strong> Track successfully
+            processed data with reliable checkpoints and deduplicate
+            records before downstream operations.
+          </li>
+          <li>
+            <strong>Measure the outcome:</strong> Use runtime, resource
+            utilization, and cloud-cost metrics to validate improvements.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>
+      <strong>Data Engineering Challenges & Solutions</strong>
+    </p>
+    <p>
+      Practical lessons in building reliable, scalable, and cost-efficient
+      data pipelines.
+    </p>
+  </footer>
+
 </body>
 </html>
-
