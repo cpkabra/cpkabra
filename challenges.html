@@ -52,9 +52,44 @@ After seperating workspace now our target was to check cloud cost and we were ha
   By using this approach we also saved a lot of cost.
   
   <h1>4. Vaccume, Optimize </h1>
-
-  <h1>5. Approach modify and boost our pipeline from 5 hours to 30 min </h1>
+  <h2> Table size is increase day by and time travel is also increasing table version as well so we have introduce this new pipline which will run on weekend.
+    and it will run based on configuration and it will vaccume table based on configuration.
+    We are also running optimized command so that all small file merged into big file.
+    VACUUM esg_curated_db.climate RETAIN 168 HOURS 
+    OPTIMIZE esg_curated_db.climate;
+    ANALYZE TABLE esg_curated_db.climate
+    COMPUTE STATISTICS FOR COLUMNS esg_entity_id, order_date;
   
+  </h2>
+  <h1>5. Approach modify and boost our pipeline from 5 hours to 30 min </h1>
+  <h2> Actually our all pipeline are based on raw i.e. acquisition where this is seperate team and ingesting all data into raw zone. and all pipeline are running on 
+    full file, i.e. every day when file come it will have full data, not only delta , let say yesterday file ingested and it was having 1000 records and today it have 1100 records 
+    where we are running merge so 100 will be inserted new record and 1000 will be updated if key matched so we are checking if any change is there then we will udpate if not then we will ignore.
+    we are also ignoring technical columns in compare.
+
+    So this file ingestion will have process id which is feed id + current time stamp epoch id.
+    so every day it will have different proess id.
+    For all pipeline we are getting max(process_id) from raw zone so that we will get latest records.
+
+    But scenario is different for this pipeline.
+    In this case file and records are huge so at acquisition side they are also splitting this file into multiple file and then uploading or ingesting.
+    so at raw side we would have multiple process id for same day. we can not use max process id if we will use this then it will end up with partial records.
+
+    So this pipeline was already working on business date pattern, i.e. it was checking and getting data of max businessdate and that businessdate was not partition column.
+    This pipeline was taking more and more time.
+    <h2>Solution</h2>
+    <h2> I was checking query and quesry itself was taking all time other part was very quick
+    so I updated this with process id  instead of business date but we can not simpley take max process id.
+      In our project process_log table was already there so we are inserting entry into this table I also leverage this.
+      Once pipeline processed then at last we are inserting entry into this table with max process id.
+      when next run would start then we are getting entry from this table and taking all process id greather than this process id so by doing this we will get multiple process id.
+      and I also adding dedupling logic in query which window partition on business key , order by desc and rn=1 so even we do have multiple entry we will get one.
+      With this Fix pipeline was running very quick and less than 30 minute. and I haved a lot of cost.
+    </h2>
+    
+    
+
+  </h2>
 </body>
 </html>
 
