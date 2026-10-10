@@ -31,6 +31,30 @@ We missed to change new URL in databricks linked service in prod and uat envirom
     to fix this issue in new future when any linked service url changes come we have cretaed one utility where we will deploy all paramters file in dev env<br>
 by passing all environment so that it will check paramters are there for all environments properly and once we verify we will last deploy<br>
   DEV one so that it will point to DEV in DEV env.<br></p>
+
+<h1>2. Cloud Cost Reduce</h1>
+After seperating workspace now our target was to check cloud cost and we were have two tag old and new.<br>
+  In old one sql end point was running 24*7 in UAT and PROD which was highest cost producer, which I have analysed from azure cost and identify resource.<br>
+  Now we check and ask relvent team that can we shut it down and when you will use it will take 2-3 minute first time and then it is up.<br>
+  But that team was not agree on that so we convince them to atelast use Autermiate 30 minute if nt used in UAT and by this setting we saved a lot of cost.<br>
+
+<h1>3. Linked service configuration</h1>  
+  Actually in our project we are usign databricks resource which was createing job cluster and taking resource from node pool.
+  We are calling our pipeline from ADF and in ADF we have used linked service with min and max worker pool configuration so that our large pipeline will run on 
+  bug linked servie and small pipeline will run on small linked service.
+
+  <h2> Chellenge</h2>
+  Main  thing which I observed is our data was not huge for many pipeline but still we are allocating min 2 to max 5 worker.
+  So in real it will not use resource if not requiured but I have checked spark UI and resouce allocation so many time it was adding worker for very small time and then 
+  removing which was not required.
+  After analysing it I downgrade many small pipeline to min 1 to max 2 worker so that it can only take minimum resource. even there is no option for only min 1 and max 1 
+  in ADF to databricks so we have to go with that.
+  By using this approach we also saved a lot of cost.
+  
+  <h1>4. Vaccume, Optimize </h1>
+
+  <h1>5. Approach modify and boost our pipeline from 5 hours to 30 min </h1>
+  
 </body>
 </html>
 
