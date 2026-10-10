@@ -5,8 +5,24 @@
 <p align="center"><img src="https://komarev.com/ghpvc/?username=cpkabra&style=flat-square&color=blue" alt="cpprofileviews"/></p>
 
 ### :woman_technologist: &nbsp;About Me :
-I am a Big Data Developer <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30">
-- 🔭 I am a data enthusiast with extensive experience in big data tools and cloud technologies. I have worked on various projects involving data ingestion, processing, and analysis, and I am proficient in using tools like Hadoop, Spark, Hive. My experience with Amazon Web Services (AWS) includes working with S3, EC2, Azure ADLS Gen2, DataFactory, Airflow, Databricks  and I have successfully implemented scalable and fault-tolerant data pipelines using these services.
+I am  Data Engineer <img src="https://media.giphy.com/media/WUlplcMpOCEmTGBtBW/giphy.gif" width="30">
+- 🔭 🚀 I'm passionate about building scalable, reliable, and high-performance data solutions that transform raw data into meaningful insights and business value.
+
+With hands-on experience in big data technologies and cloud platforms, I work on designing and developing end-to-end data pipelines, distributed data processing systems, and cloud-based data architectures. I enjoy solving complex data engineering challenges, optimizing data workflows, and building robust solutions that handle data at scale.
+
+**🛠️ Technologies & Expertise**
+
+**Big Data & Distributed Processing:** Apache Spark, PySpark, Hadoop, Hive</br>
+**Cloud Platforms:** Microsoft Azure, Amazon Web Services (AWS)</br>
+**Data Engineering:** Data Ingestion, ETL/ELT Pipelines, Data Transformation, Workflow Orchestration</br>
+**Azure Data Services:** Azure Data Lake Storage Gen2 (ADLS Gen2), Azure Data Factory (ADF), Azure Databricks</br>
+**AWS Services:** Amazon S3, Amazon EC2</br>
+**Workflow Orchestration:** Apache Airflow</br>
+**Data Architecture:** Scalable Data Pipelines, Distributed Computing, Fault-Tolerant Data Processing
+
+**🌱 Always Learning & Exploring**
+
+I'm continuously expanding my knowledge of AI, Generative AI, Agentic AI, and intelligent automation to explore how emerging technologies can improve data engineering workflows and unlock new possibilities.
 
 ---
 ### 🛠 &nbsp;Languages and Tools :
