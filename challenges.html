@@ -400,6 +400,11 @@
       color: var(--green);
     }
 
+    .highlight {
+      font-weight: 700;
+      color: #245c49;
+    }
+
     .footer {
       text-align: center;
       padding: 28px 24px;
@@ -522,7 +527,7 @@
     <!-- Overview -->
     <section class="overview" aria-label="Challenge overview">
       <div class="overview-card">
-        <span class="number">05</span>
+        <span class="number">06</span>
         <div class="label">Real-world engineering challenges</div>
       </div>
 
@@ -670,13 +675,14 @@
           <div>
             <h2 class="challenge-title">Azure Cloud Cost Optimization</h2>
             <p class="challenge-subtitle">
-              Identifying unnecessary compute costs and improving utilization
+              Investigating unexpected daily spend and reducing idle SQL Warehouse runtime
             </p>
             <div class="tech-tags">
               <span>Azure Cost Management</span>
               <span>Databricks SQL Warehouse</span>
               <span>Auto Stop</span>
               <span>FinOps</span>
+              <span>Cost Analysis</span>
             </div>
           </div>
         </div>
@@ -684,50 +690,63 @@
         <div class="content-block">
           <h3>Problem</h3>
           <p>
-            After separating the shared workspace into dedicated workspaces,
-            our next objective was to analyze and reduce cloud costs.
-            We compared the cost information associated with the old and
-            new workspace setups and investigated the major resource
-            consumers using Azure Cost Management.
+            I was asked to review our existing cloud usage and identify opportunities
+            to reduce costs. The project is divided into two tenants: ESG and XREF.
+            XREF has around 10 pipelines that use approximately 5 hours of compute
+            daily, while ESG has around 25 pipelines that use approximately 17 hours
+            daily. However, the cost attributed to XREF was higher than ESG, which
+            did not align with the expected workload.
           </p>
           <p>
-            We identified Databricks SQL Warehouses running continuously
-            in UAT and PROD as significant cost contributors.
+            A daily cost review showed that XREF was generating approximately
+            <strong>$55 per day, including weekends</strong>, even though its
+            pipelines do not run on weekends. This suggested that a resource outside
+            the scheduled pipeline runs was continuing to consume compute.
+          </p>
+          <p>
+            I filtered Azure Cost Management data by day and identified a Databricks
+            SQL endpoint (SQL Warehouse) that was running continuously. The cost was
+            present in UAT and PROD, while the corresponding resource was stopped in
+            DEV and TEST.
           </p>
         </div>
 
         <div class="callout">
           <strong>Operational constraint</strong>
           <p>
-            The consuming team was reluctant to shut down the SQL Warehouse
-            because starting it again could introduce a delay of approximately
-            two to three minutes before queries could run.
+            A consumer used the SQL endpoint to access data through an API and needed
+            the data to be available quickly. When the endpoint was stopped, the first
+            request could take approximately 5–7 minutes while the endpoint started.
+            Keeping it running continuously improved responsiveness but increased
+            unnecessary cloud expenditure during idle periods.
           </p>
         </div>
 
         <div class="solution">
           <h3>Solution</h3>
           <p>
-            Rather than insisting on a complete shutdown, we discussed a
-            compromise with the consuming team and enabled a 30-minute
-            auto-stop setting for the relevant warehouse in UAT when it
-            remained idle.
+            I reviewed the usage with the consuming team and proposed enabling
+            inactivity-based auto-stop in UAT. We agreed to configure the SQL
+            Warehouse to stop after 45 minutes of inactivity. If it continues to be
+            used, the inactivity timer resets and the warehouse remains available.
           </p>
           <ul>
-            <li>Reviewed Azure cost data to identify expensive resources.</li>
-            <li>Discussed workload requirements with the consuming team.</li>
-            <li>Configured idle auto-stop to reduce unnecessary runtime.</li>
-            <li>Retained the ability to restart the warehouse when needed.</li>
+            <li>Compared daily cloud costs across ESG and XREF and investigated the unexpected cost difference.</li>
+            <li>Filtered Azure Cost Management data by day to identify the resource responsible for weekend spend.</li>
+            <li>Compared resource states across DEV, TEST, UAT, and PROD.</li>
+            <li>Agreed on a 45-minute inactivity auto-stop in UAT with the consuming team to balance cost and access needs.</li>
+            <li>Identified and implemented optimization opportunities across project environments.</li>
           </ul>
         </div>
 
         <div class="result">
           <strong>Outcome</strong>
           <p>
-            Reduced avoidable compute runtime and cloud spending while
-            maintaining the team's ability to use the warehouse when required.
-            The actual savings can be quantified using before-and-after
-            Azure Cost Management data.
+            The cloud cost review and optimization work delivered approximately
+            <strong>$15,000 in annual savings across all project environments</strong>.
+            The UAT auto-stop setting reduced avoidable idle runtime while preserving
+            the ability to restart the warehouse when required. The before-and-after
+            Azure Cost Management data can be used to validate the realized savings.
           </p>
         </div>
       </article>
@@ -1079,6 +1098,102 @@ ranked_records <span class="sql-keyword">AS</span> (
 
     </section>
 
+      <!-- Challenge 6 -->
+      <article class="challenge">
+        <div class="challenge-header">
+          <div class="challenge-number">06</div>
+          <div>
+            <h2 class="challenge-title">Run Pipelines Only When Upstream Data Is Available</h2>
+            <p class="challenge-subtitle">
+              Using event-informed marker files to avoid unnecessary pipeline runs and reduce compute contention
+            </p>
+            <div class="tech-tags">
+              <span>Azure Data Lake Storage</span>
+              <span>Kafka Events</span>
+              <span>Marker Files</span>
+              <span>Pipeline Orchestration</span>
+              <span>Compute Optimization</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-block">
+          <h3>Problem</h3>
+          <p>
+            Several pipelines perform full loads and then check whether upstream
+            data has changed. If no changes are found, the pipeline completes without
+            updating the SCD Type 2 history, but it still consumes compute. The
+            Acquisition team uploads files to the raw-zone container, and some
+            upstream feeds arrive weekly, monthly, or on an ad hoc basis rather than
+            every day.
+          </p>
+          <p>
+            In one pipeline pattern, a master pipeline runs for approximately
+            45 minutes before starting its child pipeline. The child then checks
+            whether raw data has changed. If there is no new data, the work produces
+            no useful update. This can waste close to one hour of compute per run;
+            around five pipelines follow this pattern.
+          </p>
+        </div>
+
+        <div class="callout">
+          <strong>Operational constraint</strong>
+          <p>
+            Pipelines were scheduled because multiple pipelines could run at the same
+            time and compete for limited compute resources. Running every pipeline
+            daily, even when its upstream files had not changed, wasted compute; but
+            removing the schedule without an alternative trigger could make it harder
+            to coordinate execution and avoid resource contention.
+          </p>
+        </div>
+
+        <div class="solution">
+          <h3>Solution: Marker File Strategy</h3>
+          <p>
+            We used events emitted by the Acquisition team after file uploads. A
+            consumer reads the relevant Kafka topic and, when an upload is detected,
+            writes a marker file to a designated folder in the data lake. At its
+            scheduled execution time, the pipeline checks that folder and starts the
+            master and child pipelines only when a relevant marker exists. After the
+            child pipeline completes, the marker is moved to an archive folder.
+          </p>
+          <ul>
+            <li>Listen to the relevant Kafka topic for upstream file-upload events.</li>
+            <li>Create a marker in the current-trigger folder when a relevant file has arrived.</li>
+            <li>At the configured run time, check for the pipeline's marker before starting the master and child pipelines.</li>
+            <li>After successful child-pipeline execution, move the processed marker into the archive folder.</li>
+            <li>Use separate marker names to associate each upstream feed with its intended pipeline.</li>
+          </ul>
+
+          <div class="code-block">
+            <div class="code-label">Example marker file paths</div>
+            <pre><code><span class="sql-comment">-- Current trigger markers</span>
+pipeline-trigger/am-currentfiles-xyz1.trg
+pipeline-trigger/am-currentfiles-xyz2.trg
+pipeline-trigger/am-currentfiles-xyz3.trg
+pipeline-trigger/ubspasi-currentfiles-abc1.trg
+
+<span class="sql-comment">-- Archived markers after processing</span>
+pipeline-trigger/am-archivefiles-xyz1.trg
+pipeline-trigger/am-archivefiles-xyz2.trg
+pipeline-trigger/am-archivefiles-xyz3.trg
+pipeline-trigger/ubspasi-archivefiles-abc1.trg</code></pre>
+          </div>
+        </div>
+
+        <div class="result">
+          <strong>Outcome</strong>
+          <p>
+            The marker-file approach allows pipelines to check for upstream
+            availability before launching expensive master and child processing.
+            It reduces avoidable runs when no new data has arrived and helps manage
+            compute usage more deliberately. The actual compute savings can be
+            measured by comparing run counts and compute duration before and after
+            introducing the strategy.
+          </p>
+        </div>
+      </article>
+
     <!-- Conclusion -->
     <section class="challenge">
       <div class="section-heading">
@@ -1110,6 +1225,10 @@ ranked_records <span class="sql-keyword">AS</span> (
             <strong>Incremental processing:</strong> Track successfully
             processed data with reliable checkpoints and deduplicate
             records before downstream operations.
+          </li>
+          <li>
+            <strong>Upstream-aware orchestration:</strong> Use upload events and
+            marker files to avoid starting pipelines when no new source data is available.
           </li>
           <li>
             <strong>Measure the outcome:</strong> Use runtime, resource
